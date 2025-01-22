@@ -1,24 +1,32 @@
 -- credit to https://github.com/hrsh7th/cmp-path for the original implementation
 -- and https://codeberg.org/FelipeLema/cmp-async-path for the async implementation
 
-local regex = require('blink.cmp.sources.path.regex')
+--- @class blink.cmp.PathOpts
+--- @field trailing_slash boolean
+--- @field label_trailing_slash boolean
+--- @field get_cwd fun(context: blink.cmp.Context): string
+--- @field show_hidden_files_by_default boolean
+
+--- @class blink.cmp.Source
+--- @field opts blink.cmp.PathOpts
 local path = {}
 
 function path.new(opts)
   local self = setmetatable({}, { __index = path })
 
-  opts = vim.tbl_deep_extend('keep', opts or {}, {
-    trailing_slash = false,
+  --- @type blink.cmp.PathOpts
+  opts = vim.tbl_deep_extend('keep', opts, {
+    trailing_slash = true,
     label_trailing_slash = true,
     get_cwd = function(context) return vim.fn.expand(('#%d:p:h'):format(context.bufnr)) end,
     show_hidden_files_by_default = false,
   })
-  vim.validate({
+  require('blink.cmp.config.utils').validate('sources.providers.path', {
     trailing_slash = { opts.trailing_slash, 'boolean' },
     label_trailing_slash = { opts.label_trailing_slash, 'boolean' },
     get_cwd = { opts.get_cwd, 'function' },
     show_hidden_files_by_default = { opts.show_hidden_files_by_default, 'boolean' },
-  })
+  }, opts)
 
   self.opts = opts
   return self

@@ -70,7 +70,7 @@ function completion.setup()
   -- setup ghost text
   if config.completion.ghost_text.enabled then
     list.select_emitter:on(
-      function(event) require('blink.cmp.completion.windows.ghost_text').show_preview(event.item) end
+      function(event) require('blink.cmp.completion.windows.ghost_text').show_preview(event.items, event.idx) end
     )
     list.hide_emitter:on(function() require('blink.cmp.completion.windows.ghost_text').clear_preview() end)
   end
@@ -78,7 +78,7 @@ function completion.setup()
   -- run 'resolve' on the item ahead of time to avoid delays
   -- when accepting the item or showing documentation
   list.select_emitter:on(function(event)
-    -- when selection == 'manual' | 'auto_insert', we still want to prefetch the first item
+    -- when selection.preselect == false, we still want to prefetch the first item
     local item = event.item or list.items[1]
     if item == nil then return end
     require('blink.cmp.completion.prefetch')(event.context, event.item)

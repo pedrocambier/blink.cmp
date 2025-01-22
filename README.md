@@ -18,11 +18,11 @@
 - Auto-bracket support based on semantic tokens
 - Signature help (experimental, opt-in)
 - Command line completion
-- [Comparison with nvim-cmp](#compared-to-nvim-cmp)
+- [Comparison with nvim-cmp](https://cmp.saghen.dev/#compared-to-nvim-cmp)
 
 ## Installation
 
-Head over to the [documentation website](https://cmp.saghen.dev) for installation instructions and configuration options.
+Head over to the [documentation website](https://cmp.saghen.dev/installation) for installation instructions and configuration options.
 
 ## Special Thanks
 
@@ -36,4 +36,5 @@ Head over to the [documentation website](https://cmp.saghen.dev) for installatio
 - [@stefanboca](https://github.com/stefanboca) Author of [blink.compat](https://github.com/saghen/blink.compat)
 - [@lopi-py](https://github.com/lopi-py) Contributes to the windowing code
 - [@scottmckendry](https://github.com/scottmckendry) Contributes to the CI and prebuilt binaries
-- [@balssh](https://github.com/Balssh) Manages nixpkg and nixvim
+- [@balssh](https://github.com/Balssh) + [@konradmalik](https://github.com/konradmalik) Manages nix flake, nixpkg and nixvim
+- [@abeldekat](https://github.com/abeldekat) Implemented mini.snippets source

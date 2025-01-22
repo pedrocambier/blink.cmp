@@ -8,7 +8,7 @@
 --- @field description? string
 
 local registry = {
-  builtin_vars = require('blink.cmp.sources.snippets.builtin'),
+  builtin_vars = require('blink.cmp.sources.snippets.default.builtin'),
 }
 
 local utils = require('blink.cmp.sources.snippets.utils')
@@ -17,7 +17,6 @@ local default_config = {
   search_paths = { vim.fn.stdpath('config') .. '/snippets' },
   global_snippets = { 'all' },
   extended_filetypes = {},
-  ignored_filetypes = {},
   --- @type string?
   clipboard_register = nil,
 }
@@ -26,13 +25,26 @@ local default_config = {
 function registry.new(config)
   local self = setmetatable({}, { __index = registry })
   self.config = vim.tbl_deep_extend('force', default_config, config)
+  self.config.search_paths = vim.tbl_map(function(path) return vim.fs.normalize(path) end, self.config.search_paths)
 
   if self.config.friendly_snippets then
     for _, path in ipairs(vim.api.nvim_list_runtime_paths()) do
       if string.match(path, 'friendly.snippets') then table.insert(self.config.search_paths, path) end
     end
   end
-  self.registry = require('blink.cmp.sources.snippets.scan').register_snippets(self.config.search_paths)
+  self.registry = require('blink.cmp.sources.snippets.default.scan').register_snippets(self.config.search_paths)
+
+  if self.config.filter_snippets then
+    local filtered_registry = {}
+    for ft, files in pairs(self.registry) do
+      filtered_registry[ft] = {}
+      for _, file in ipairs(files) do
+        if self.config.filter_snippets(ft, file) then table.insert(filtered_registry[ft], file) end
+      end
+    end
+
+    self.registry = filtered_registry
+  end
 
   return self
 end

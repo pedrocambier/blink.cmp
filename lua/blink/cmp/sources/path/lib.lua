@@ -6,8 +6,7 @@ local lib = {}
 function lib.dirname(get_cwd, context)
   -- HACK: move this :sub logic into the context?
   -- it's not obvious that you need to avoid going back a char if the start_col == end_col
-  local line_before_cursor =
-    context.line:sub(1, context.bounds.start_col - (context.bounds.start_col ~= context.bounds.end_col and 1 or 0))
+  local line_before_cursor = context.line:sub(1, context.bounds.start_col - (context.bounds.length == 0 and 1 or 0))
   local s = regex.PATH:match_str(line_before_cursor)
   if not s then return nil end
 
@@ -51,6 +50,7 @@ end
 --- @param opts table
 function lib.candidates(context, dirname, include_hidden, opts)
   local fs = require('blink.cmp.sources.path.fs')
+  local ranges = lib.get_text_edit_ranges(context)
   return fs.scan_dir_async(dirname)
     :map(function(entries) return fs.fs_stat_all(dirname, entries) end)
     :map(function(entries)
@@ -58,7 +58,14 @@ function lib.candidates(context, dirname, include_hidden, opts)
     end)
     :map(function(entries)
       return vim.tbl_map(
-        function(entry) return lib.entry_to_completion_item(context, entry, dirname, opts) end,
+        function(entry)
+          return lib.entry_to_completion_item(
+            entry,
+            dirname,
+            entry.type == 'directory' and ranges.directory or ranges.file,
+            opts
+          )
+        end,
         entries
       )
     end)
@@ -73,41 +80,44 @@ function lib.is_slash_comment()
   return is_slash_comment and not no_filetype
 end
 
---- @param context blink.cmp.Context
 --- @param entry { name: string, type: string, stat: table }
 --- @param dirname string
+--- @param range lsp.Range
 --- @param opts table
 --- @return blink.cmp.CompletionItem[]
-function lib.entry_to_completion_item(context, entry, dirname, opts)
+function lib.entry_to_completion_item(entry, dirname, range, opts)
   local is_dir = entry.type == 'directory'
   local CompletionItemKind = require('blink.cmp.types').CompletionItemKind
-  local insert_text = is_dir and entry.name .. '/' or entry.name
+  local insert_text = is_dir and opts.trailing_slash and entry.name .. '/' or entry.name
   return {
     label = (opts.label_trailing_slash and is_dir) and entry.name .. '/' or entry.name,
     kind = is_dir and CompletionItemKind.Folder or CompletionItemKind.File,
     insertText = insert_text,
-    textEdit = lib.get_text_edit(context, insert_text),
+    textEdit = { newText = insert_text, range = range },
     sortText = (is_dir and '1' or '2') .. entry.name:lower(), -- Sort directories before files
-    word = opts.trailing_slash and entry.name or nil,
     data = { path = entry.name, full_path = dirname .. '/' .. entry.name, type = entry.type, stat = entry.stat },
   }
 end
 
---- @param insert_text string
 --- @param context blink.cmp.Context
---- @return lsp.Range | nil
-function lib.get_text_edit(context, insert_text)
+--- @return { file: lsp.Range, directory: lsp.Range }
+function lib.get_text_edit_ranges(context)
   local line_before_cursor = context.line:sub(1, context.cursor[2])
+  local next_letter_is_slash = context.line:sub(context.cursor[2] + 1, context.cursor[2] + 1) == '/'
 
   local parts = vim.split(line_before_cursor, '/')
   local last_part = parts[#parts]
 
   -- TODO: return the insert and replace ranges, instead of only the insert range
   return {
-    newText = insert_text,
-    range = {
+    file = {
       start = { line = context.cursor[1] - 1, character = context.cursor[2] - #last_part },
       ['end'] = { line = context.cursor[1] - 1, character = context.cursor[2] },
+    },
+    directory = {
+      start = { line = context.cursor[1] - 1, character = context.cursor[2] - #last_part },
+      -- replace the slash after the cursor, if it exists
+      ['end'] = { line = context.cursor[1] - 1, character = context.cursor[2] + (next_letter_is_slash and 1 or 0) },
     },
   }
 end

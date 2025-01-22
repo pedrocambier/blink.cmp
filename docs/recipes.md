@@ -29,9 +29,33 @@ signature = { window = { border = 'single' } },
 ```lua
 completion = { 
   list = { 
-    selection = function(ctx)
-      return ctx.mode == 'cmdline' and 'auto_insert' or 'preselect'
-    end
+    selection = {
+      preselect = function(ctx) return ctx.mode ~= 'cmdline' end,
+      auto_insert = function(ctx) return ctx.mode ~= 'cmdline' end
+    }
+  }
+}
+```
+
+### Buffer completion from all open buffers
+
+The default behavior is to only show completions from **visible** "normal" buffers (i.e. it woudldn't include neo-tree). This will instead show completions from all buffers, even if they're not visible on screen. Note that the performance impact of this has not been tested. 
+
+```lua
+sources = {
+  providers = {
+    buffer = {
+      opts = {
+        -- get all buffers, even ones like neo-tree
+        get_bufnrs = vim.api.nvim_list_bufs
+        -- or (recommended) filter to only "normal" buffers
+        get_bufnrs = function()
+          return vim.tbl_filter(function(bufnr)
+            return vim.bo[bufnr].buftype == ''
+          end, vim.api.nvim_list_bufs())
+        end
+      }
+    }
   }
 }
 ```
@@ -135,6 +159,22 @@ vim.api.nvim_create_autocmd('User', {
 })
 ```
 
+### Show on newline, tab and space
+
+Note that you may want to add the override to other sources as well, since if the LSP doesnt return any items, we won't show the menu if it was triggered by any of these three characters.
+
+```lua
+-- by default, blink.cmp will block newline, tab and space trigger characters, disable that behavior
+completion.trigger.show_on_blocked_trigger_characters = {}
+
+-- add newline, tab and space to LSP source trigger characters
+sources.providers.lsp.override.get_trigger_characters = function(self)
+  local trigger_characters = self:get_trigger_characters()
+  vim.list_extend(trigger_characters, { '\n', '\t', ' ' })
+  return trigger_characters
+end
+```
+
 ## Sources
 
 ### Dynamically picking providers by treesitter node/filetype
@@ -175,6 +215,20 @@ See the [relevant section in the snippets documentation](./configuration/snippet
 sources.min_keyword_length = function()
   return vim.bo.filetype == 'markdown' and 2 or 0
 end
+```
+
+### Set minimum keyword length for command only in cmdline
+
+If you'd prefer the menu doesn't popup when typing abbreviations like `wq`, you may set the minimum keyword length to 2 when typing the command.
+
+```lua
+sources = {
+  min_keyword_length = function(ctx)
+    -- only applies when typing a command, doesn't apply to arguments
+    if ctx.mode == 'cmdline' and string.find(ctx.line, ' ') == nil then return 2 end
+    return 0
+  end
+}
 ```
 
 ## For writers

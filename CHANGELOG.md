@@ -1,3 +1,76 @@
+## [0.10.0](https://github.com/Saghen/blink.cmp/compare/v0.9.3...v0.10.0) (2025-01-08)
+
+### BREAKING CHANGES
+
+* mini.snippets and snippets presets (#877)
+* support `preselect` with `auto_insert`, set as default
+
+### Features
+
+* add `get_selected_item` public function ([9e1e7e6](https://github.com/Saghen/blink.cmp/commit/9e1e7e604e3419fa0777a2b747ded74d35013c06))
+* mini.snippets and snippets presets ([#877](https://github.com/Saghen/blink.cmp/issues/877)) ([854ab87](https://github.com/Saghen/blink.cmp/commit/854ab87aefdac2b757d97595f98673d64f1878bc))
+* set default capabilities on 0.11 ([#897](https://github.com/Saghen/blink.cmp/issues/897)) ([af1febb](https://github.com/Saghen/blink.cmp/commit/af1febb17f9ddc87cf73e69d3f61218cdc18ed85))
+* support `preselect` with `auto_insert`, set as default ([8126d0e](https://github.com/Saghen/blink.cmp/commit/8126d0e6a2a0e62d3872d718c3d50313f9f7fe3a)), closes [#668](https://github.com/Saghen/blink.cmp/issues/668)
+
+### Bug Fixes
+
+* `get_char_at_cursor` attempting to get char on empty line ([7d6bf9a](https://github.com/Saghen/blink.cmp/commit/7d6bf9adea67a200067effe5ef589515e71230c8)), closes [#926](https://github.com/Saghen/blink.cmp/issues/926)
+* `within_query_bounds` including 1 position after bounds ([36ba8eb](https://github.com/Saghen/blink.cmp/commit/36ba8eb9c166c21d6d2a8b5f88f9c55d1966b383)), closes [#890](https://github.com/Saghen/blink.cmp/issues/890) [#875](https://github.com/Saghen/blink.cmp/issues/875)
+* assert vim.lsp.config fn exists before calling ([#927](https://github.com/Saghen/blink.cmp/issues/927)) ([47efef8](https://github.com/Saghen/blink.cmp/commit/47efef83802b26bd2ff7193b24af4c7f747dc145))
+* buildVimPlugin ([#933](https://github.com/Saghen/blink.cmp/issues/933)) ([3f5dcbc](https://github.com/Saghen/blink.cmp/commit/3f5dcbc1c28edd2ab31b9bac27cc63de4e56b87c))
+* clear context on ignored cursor moved when not on keyword ([0f8de3a](https://github.com/Saghen/blink.cmp/commit/0f8de3abd560f38415d71fc6ee9885c2bf53b814)), closes [#937](https://github.com/Saghen/blink.cmp/issues/937)
+* ignore cursor moved when cursor equal before vs after ([17eea33](https://github.com/Saghen/blink.cmp/commit/17eea330a5d111f3cd67f59bb3832cc78f55db14))
+* **signature:** use `char_under_cursor` in `on_char_added` handler ([#935](https://github.com/Saghen/blink.cmp/issues/935)) ([275d407](https://github.com/Saghen/blink.cmp/commit/275d40713191e6c0012783ecf762a4faa138098b)), closes [#909](https://github.com/Saghen/blink.cmp/issues/909)
+
+## [0.9.3](https://github.com/Saghen/blink.cmp/compare/v0.9.2...v0.9.3) (2025-01-06)
+
+### Features
+
+* add plaintex, tex and context brackets ([9ffdb7b](https://github.com/Saghen/blink.cmp/commit/9ffdb7b71d0ee9abcccb61d3b8fb60defc4d47ff))
+* **path:** replace `/` in front of cursor on directory ([d2b411c](https://github.com/Saghen/blink.cmp/commit/d2b411ca2ec894ccab9d7dc0bd506e44920983ef))
+
+### Bug Fixes
+
+* add .repro to gitignore ([0d1e3c3](https://github.com/Saghen/blink.cmp/commit/0d1e3c34b172bf93380f8675ec962c301f2b5aaa))
+* cmdline completion new text not including prefix ([bc480aa](https://github.com/Saghen/blink.cmp/commit/bc480aa927ef4afbf5431f566e8aea7458e9f8df)), closes [#883](https://github.com/Saghen/blink.cmp/issues/883)
+* ignore buffer local treesitter option ([d704244](https://github.com/Saghen/blink.cmp/commit/d704244327c1bc1fdd9c0218fe4fff04ca78d3c0)), closes [#913](https://github.com/Saghen/blink.cmp/issues/913)
+* ignore non-key char in cmdline completion ([cc0e632](https://github.com/Saghen/blink.cmp/commit/cc0e6329e7603b5749c7fe98a76e39ed17bab860)), closes [#893](https://github.com/Saghen/blink.cmp/issues/893)
+* **nix:** use native gcc on macos ([3ab6832](https://github.com/Saghen/blink.cmp/commit/3ab6832b2fc3e49aad9c984089cfc0c5ec788531)), closes [#652](https://github.com/Saghen/blink.cmp/issues/652)
+* **nix:** use nix gcc and provide libiconv ([#916](https://github.com/Saghen/blink.cmp/issues/916)) ([5d2d601](https://github.com/Saghen/blink.cmp/commit/5d2d6010d9a5376f9073c1182887e547e3c0ec17))
+
+## [0.9.2](https://github.com/Saghen/blink.cmp/compare/v0.9.1...v0.9.2) (2025-01-03)
+
+### Bug Fixes
+
+* unicode range when checking if char is keyword ([100d3c8](https://github.com/Saghen/blink.cmp/commit/100d3c8bfc8059c2fd2347d00ab70ee91c7ff3ca)), closes [#878](https://github.com/Saghen/blink.cmp/issues/878)
+
+## [0.9.1](https://github.com/Saghen/blink.cmp/compare/v0.9.0...v0.9.1) (2025-01-03)
+
+### Features
+
+* ignore global min_keyword_length for manual trigger ([56f5d31](https://github.com/Saghen/blink.cmp/commit/56f5d314f772617b506d92e46b8e946535edc04e)), closes [#643](https://github.com/Saghen/blink.cmp/issues/643)
+* **nix:** add formatter ([#867](https://github.com/Saghen/blink.cmp/issues/867)) ([a0274b1](https://github.com/Saghen/blink.cmp/commit/a0274b10f04ea625b602f6383e3cb2fc38dcfd71)), closes [#736](https://github.com/Saghen/blink.cmp/issues/736)
+* normalize search paths ([8a64275](https://github.com/Saghen/blink.cmp/commit/8a64275948cead4de55cd78c7dc74b2c6465605e)), closes [#835](https://github.com/Saghen/blink.cmp/issues/835)
+* smarter edit/fuzzy range guessing ([768bcc0](https://github.com/Saghen/blink.cmp/commit/768bcc08282919168cd9bdf29aa8fcbf968fc457)), closes [#46](https://github.com/Saghen/blink.cmp/issues/46)
+* sort cmdline items starting with special characters last ([ae3bf0d](https://github.com/Saghen/blink.cmp/commit/ae3bf0d51902df20121378da2ee6893bcc92fa63)), closes [#818](https://github.com/Saghen/blink.cmp/issues/818)
+* support custom/customlist cmdline completions directly ([7e7deaa](https://github.com/Saghen/blink.cmp/commit/7e7deaa8bfa578d147e2d1f04a3373fac2afd58f)), closes [#849](https://github.com/Saghen/blink.cmp/issues/849)
+
+### Bug Fixes
+
+* column alignment off by 1 when bounds length == 0 ([0d162bd](https://github.com/Saghen/blink.cmp/commit/0d162bd1b0bbd80a1b5a2dc23d98249d4f8c28f6))
+* get full unicode char at cursor position ([e831cab](https://github.com/Saghen/blink.cmp/commit/e831cab7a4c31da02c72044190e9afc1a9ed584c)), closes [#864](https://github.com/Saghen/blink.cmp/issues/864)
+* hyphen not being considered a keyword ([8ca8ca4](https://github.com/Saghen/blink.cmp/commit/8ca8ca444e0801411e077cdee655e5efa3f77b36)), closes [#866](https://github.com/Saghen/blink.cmp/issues/866)
+* ignore non custom/customlist completion types ([f7857fc](https://github.com/Saghen/blink.cmp/commit/f7857fcb98e52899eb06f07ecb972a430d0de6e0)), closes [#849](https://github.com/Saghen/blink.cmp/issues/849)
+* keyword range not being respected for fuzzy matching ([4cc4e37](https://github.com/Saghen/blink.cmp/commit/4cc4e37dd39eec683a9e1a82e71cd1791bda7761))
+* path provider not respecting trailing_slash=false ([#862](https://github.com/Saghen/blink.cmp/issues/862)) ([0ff2ed5](https://github.com/Saghen/blink.cmp/commit/0ff2ed566e753844825cd8d2483933861cea55ff))
+* set undolevels to force undo point ([4c63b4e](https://github.com/Saghen/blink.cmp/commit/4c63b4e29738268950911bb0c70ffaaba26b53d7)), closes [#852](https://github.com/Saghen/blink.cmp/issues/852)
+* use tmp file for downloading to prevent crash on mac on update ([84e065b](https://github.com/Saghen/blink.cmp/commit/84e065bef1504076a0cc3f75f9867b9bce6f328b)), closes [#68](https://github.com/Saghen/blink.cmp/issues/68)
+* window direction sorting on Windows ([#846](https://github.com/Saghen/blink.cmp/issues/846)) ([00ad008](https://github.com/Saghen/blink.cmp/commit/00ad008cbea4d0d2b5880e7c7386caa9fc4e5e2b))
+
+### Performance Improvements
+
+* use faster 0.11 vim.validate ([#868](https://github.com/Saghen/blink.cmp/issues/868)) ([a8957ba](https://github.com/Saghen/blink.cmp/commit/a8957bab8faad4436e7ad62244c39335b95450a4))
+
 ## [0.9.0](https://github.com/Saghen/blink.cmp/compare/v0.8.2...v0.9.0) (2024-12-31)
 
 ### BREAKING CHANGES
@@ -523,7 +596,7 @@ You may now use `nvim-cmp` sources within `blink.cmp` using @stefanboca's compat
 * add missing select_and_accept keymap to config ([d2140dc](https://github.com/Saghen/blink.cmp/commit/d2140dc7615991ea88fa1fd75dd4fccb53a73e25))
 * always hide window on accept ([7f5a3d9](https://github.com/Saghen/blink.cmp/commit/7f5a3d9a820125e7da0a1816efaddb84d47a7f18))
 * auto insert breaking on single line text edit ([78ac56e](https://github.com/Saghen/blink.cmp/commit/78ac56e96144ed7475bb6d11981d3c8154bfd366)), closes [#169](https://github.com/Saghen/blink.cmp/issues/169)
-* check if item contains brackets before defering to semantic token ([e5f543d](https://github.com/Saghen/blink.cmp/commit/e5f543da2a0ce91c8720b67f0ea6cfa941dc26d6))
+* check if item contains brackets before deferring to semantic token ([e5f543d](https://github.com/Saghen/blink.cmp/commit/e5f543da2a0ce91c8720b67f0ea6cfa941dc26d6))
 * **config:** set correct type def for blink.cmp.WindowBorderChar ([516190b](https://github.com/Saghen/blink.cmp/commit/516190bcdafa387d417cfb235cbcd7385e902089))
 * don't show completions when trigger context is nil ([5b39d83](https://github.com/Saghen/blink.cmp/commit/5b39d83ac4fed46c57d8db987ea56cb1c0e68b0e))
 * drop prints ([89259f9](https://github.com/Saghen/blink.cmp/commit/89259f936e413e0a324b2ea369eb8ccefc05a14f)), closes [#179](https://github.com/Saghen/blink.cmp/issues/179)

@@ -12,19 +12,26 @@
 --- @field hide_emitter blink.cmp.EventEmitter<{}>
 ---
 --- @field activate fun()
+--- @field is_keyword_character fun(char: string): boolean
 --- @field is_trigger_character fun(char: string, is_show_on_x?: boolean): boolean
 --- @field suppress_events_for_callback fun(cb: fun())
 --- @field show_if_on_trigger_character fun(opts?: { is_accept?: boolean })
---- @field show fun(opts?: { trigger_kind: blink.cmp.CompletionTriggerKind, trigger_character?: string, force?: boolean, send_upstream?: boolean, providers?: string[] }): blink.cmp.Context
+--- @field show fun(opts?: blink.cmp.CompletionTriggerShowOptions): blink.cmp.Context?
 --- @field hide fun()
 --- @field within_query_bounds fun(cursor: number[]): boolean
 --- @field get_bounds fun(regex: vim.regex, line: string, cursor: number[]): blink.cmp.ContextBounds
 
-local keyword_config = require('blink.cmp.config').completion.keyword
+--- @class blink.cmp.CompletionTriggerShowOptions
+--- @field trigger_kind blink.cmp.CompletionTriggerKind
+--- @field trigger_character? string
+--- @field force? boolean
+--- @field send_upstream? boolean
+--- @field providers? string[]
+--- @field initial_selected_item_idx? number
+
 local config = require('blink.cmp.config').completion.trigger
 local context = require('blink.cmp.completion.trigger.context')
-
-local keyword_regex = vim.regex(keyword_config.regex)
+local utils = require('blink.cmp.completion.trigger.utils')
 
 --- @type blink.cmp.CompletionTrigger
 --- @diagnostic disable-next-line: missing-fields
@@ -54,7 +61,7 @@ function trigger.activate()
       trigger.show({ trigger_kind = 'trigger_character', trigger_character = char })
 
     -- character is part of a keyword
-    elseif keyword_regex:match_str(char) ~= nil and (config.show_on_keyword or trigger.context ~= nil) then
+    elseif trigger.is_keyword_character(char) and (config.show_on_keyword or trigger.context ~= nil) then
       trigger.show({ trigger_kind = 'keyword' })
 
     -- nothing matches so hide
@@ -64,19 +71,31 @@ function trigger.activate()
   end
 
   local function on_cursor_moved(event, is_ignored)
+    local cursor = context.get_cursor()
+    local cursor_col = cursor[2]
+
+    local char_under_cursor = utils.get_char_at_cursor()
+    local is_keyword = trigger.is_keyword_character(char_under_cursor)
+
     -- we were told to ignore the cursor moved event, so we update the context
     -- but don't send an on_show event upstream
     if is_ignored and event == 'CursorMoved' then
-      if trigger.context ~= nil then trigger.show({ send_upstream = false, trigger_kind = 'keyword' }) end
+      if trigger.context ~= nil then
+        -- TODO: If we `auto_insert` with the `path` source, we may end up on a trigger character
+        -- i.e. `downloads/`. If we naively update the context, we'll show the menu with the
+        -- existing context. So we clear the context if we're not on a keyword character.
+        -- Is there a better solution here?
+        if not is_keyword then trigger.context = nil end
+
+        trigger.show({ send_upstream = false, trigger_kind = 'keyword' })
+      end
       return
     end
 
-    local cursor = context.get_cursor()
-    local cursor_col = cursor[2]
-    local char_under_cursor = context.get_line():sub(cursor_col, cursor_col)
-    local is_on_keyword_char = keyword_regex:match_str(char_under_cursor) ~= nil
     local is_on_trigger_for_show = trigger.is_trigger_character(char_under_cursor)
 
+    -- TODO: doesn't handle `a` where the cursor moves immediately after
+    -- Reproducible with `example.|a` and pressing `a`, should not show the menu
     local insert_enter_on_trigger_character = config.show_on_trigger_character
       and config.show_on_insert_on_trigger_character
       and event == 'InsertEnter'
@@ -96,7 +115,7 @@ function trigger.activate()
       trigger.show({ trigger_kind = 'trigger_character', trigger_character = char_under_cursor })
 
     -- show if we currently have a context, and we've moved outside of it's bounds by 1 char
-    elseif is_on_keyword_char and trigger.context ~= nil and cursor_col == trigger.context.bounds.start_col - 1 then
+    elseif is_keyword and trigger.context ~= nil and cursor_col == trigger.context.bounds.start_col - 1 then
       trigger.context = nil
       trigger.show({ trigger_kind = 'keyword' })
 
@@ -120,6 +139,15 @@ function trigger.activate()
     on_cursor_moved = on_cursor_moved,
     on_leave = function() trigger.hide() end,
   })
+end
+
+function trigger.is_keyword_character(char)
+  -- special case for hyphen, since we don't consider a lone hyphen to be a keyword
+  if char == '-' then return true end
+
+  local success, keyword_start_col, keyword_end_col =
+    pcall(require('blink.cmp.fuzzy').get_keyword_range, char, #char, 'prefix')
+  return success and keyword_start_col ~= keyword_end_col
 end
 
 function trigger.is_trigger_character(char, is_show_on_x)
@@ -194,13 +222,20 @@ function trigger.show(opts)
     or (trigger.context and trigger.context.providers)
     or require('blink.cmp.sources.lib').get_enabled_provider_ids(context.get_mode())
 
+  local initial_trigger_kind = trigger.context and trigger.context.trigger.initial_kind or opts.trigger_kind
+  -- if we prefetched, don't keep that as the initial trigger kind
+  if initial_trigger_kind == 'prefetch' then initial_trigger_kind = opts.trigger_kind end
+  -- if we're manually triggering, set it as the initial trigger kind
+  if opts.trigger_kind == 'manual' then initial_trigger_kind = 'manual' end
+
   trigger.context = context.new({
     id = trigger.current_context_id,
     providers = providers,
-    initial_trigger_kind = trigger.context and trigger.context.trigger.initial_kind or opts.trigger_kind,
+    initial_trigger_kind = initial_trigger_kind,
     initial_trigger_character = trigger.context and trigger.context.trigger.initial_character or opts.trigger_character,
     trigger_kind = opts.trigger_kind,
     trigger_character = opts.trigger_character,
+    initial_selected_item_idx = opts.initial_selected_item_idx,
   })
 
   if opts.send_upstream ~= false then trigger.show_emitter:emit({ context = trigger.context }) end

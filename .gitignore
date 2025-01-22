@@ -6,3 +6,5 @@ dual/
 result
 .direnv
 .devenv
+.repro/
+.wrangler/

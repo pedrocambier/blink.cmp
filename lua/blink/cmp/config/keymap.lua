@@ -1,6 +1,7 @@
 --- @alias blink.cmp.KeymapCommand
 --- | 'fallback' Fallback to the built-in behavior
 --- | 'show' Show the completion window
+--- | 'show_and_insert' Show the completion window and select the first item
 --- | 'hide' Hide the completion window
 --- | 'cancel' Cancel the current completion, undoing the preview from auto_insert
 --- | 'accept' Accept the current completion item
@@ -24,6 +25,8 @@
 ---   ['<C-e>'] = { 'cancel', 'fallback' },
 ---   ['<C-y>'] = { 'select_and_accept' },
 ---
+---   ['<Up>'] = { 'select_prev', 'fallback' },
+---   ['<Down>'] = { 'select_next', 'fallback' },
 ---   ['<C-p>'] = { 'select_prev', 'fallback' },
 ---   ['<C-n>'] = { 'select_next', 'fallback' },
 ---
@@ -36,7 +39,7 @@
 --- ```
 --- | 'default'
 --- Mappings similar to VSCode.
---- You may want to set `completion.trigger.show_in_snippet = false` or use `completion.list.selection = "manual" | "auto_insert"` when using this mapping:
+--- You may want to set `completion.trigger.show_in_snippet = false` or use `completion.list.selection.preselect = function(ctx) return not require('blink.cmp').snippet_active({ direction = 1 }) end` when using this mapping:
 --- ```lua
 --- {
 ---   ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
@@ -63,7 +66,7 @@
 --- ```
 --- | 'super-tab'
 --- Similar to 'super-tab' but with `enter` to accept
---- You may want to set `completion.list.selection = "manual" | "auto_insert"` when using this keymap:
+--- You may want to set `completion.list.selection.preselect = false` when using this keymap:
 --- ```lua
 --- {
 ---   ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
@@ -125,6 +128,7 @@ function keymap.validate(config)
   local commands = {
     'fallback',
     'show',
+    'show_and_insert',
     'hide',
     'cancel',
     'accept',
@@ -168,7 +172,7 @@ function keymap.validate(config)
       }
     end
   end
-  vim.validate(validation_schema)
+  require('blink.cmp.config.utils')._validate(validation_schema)
 end
 
 return keymap

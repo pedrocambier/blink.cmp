@@ -22,7 +22,10 @@
 --- @class (exact) blink.cmp.CompletionTriggerConfigPartial : blink.cmp.CompletionTriggerConfig, {}
 
 --- @class (exact) blink.cmp.CompletionListConfigPartial : blink.cmp.CompletionListConfig, {}
+--- @field selection? blink.cmp.CompletionListSelectionConfigPartial
 --- @field cycle? blink.cmp.CompletionListCycleConfigPartial
+
+--- @class (exact) blink.cmp.CompletionListSelectionConfigPartial : blink.cmp.CompletionListSelectionConfig, {}
 
 --- @class (exact) blink.cmp.CompletionListCycleConfigPartial : blink.cmp.CompletionListCycleConfig, {}
 
@@ -56,6 +59,9 @@
 --- @field prebuilt_binaries? blink.cmp.PrebuiltBinariesConfigPartial
 
 --- @class (exact) blink.cmp.PrebuiltBinariesConfigPartial : blink.cmp.PrebuiltBinariesConfig, {}
+--- @field proxy? blink.cmp.PrebuiltBinariesProxyConfigPartial
+
+--- @class (exact) blink.cmp.PrebuiltBinariesProxyConfigPartial : blink.cmp.PrebuiltBinariesProxyConfig, {}
 
 --- @class blink.cmp.SourceConfigPartial : blink.cmp.SourceConfig, {}
 --- @field providers? table<string, blink.cmp.SourceProviderConfigPartial>

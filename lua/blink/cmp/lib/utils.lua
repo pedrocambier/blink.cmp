@@ -73,7 +73,7 @@ end
 --- @generic T
 --- @param arr T[]
 --- @param val T
---- @return number | nil
+--- @return number?
 function utils.index_of(arr, val)
   for idx, v in ipairs(arr) do
     if v == val then return idx end
@@ -85,7 +85,7 @@ end
 --- @generic T
 --- @param arr T[]
 --- @param predicate fun(item: T): boolean
---- @return T | nil
+--- @return number?
 function utils.find_idx(arr, predicate)
   for idx, v in ipairs(arr) do
     if predicate(v) then return idx end
@@ -96,8 +96,8 @@ end
 --- Slices an array
 --- @generic T
 --- @param arr T[]
---- @param start number
---- @param finish number
+--- @param start number?
+--- @param finish number?
 --- @return T[]
 function utils.slice(arr, start, finish)
   start = start or 1
